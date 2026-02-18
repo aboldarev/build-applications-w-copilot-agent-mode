@@ -31,14 +31,26 @@ router.register(r'workouts', WorkoutViewSet)
 router.register(r'activities', ActivityViewSet)
 router.register(r'leaderboard', LeaderboardViewSet)
 
+import os
+from django.http import HttpRequest
+
 @api_view(['GET'])
-def api_root(request, format=None):
+def api_root(request: HttpRequest, format=None):
+    # Получаем имя codespace из переменной окружения
+    codespace_name = os.environ.get('CODESPACE_NAME')
+    if codespace_name:
+        base_url = f"https://{codespace_name}-8000.app.github.dev"
+    else:
+        # fallback на текущий хост (например, localhost)
+        scheme = request.scheme
+        host = request.get_host()
+        base_url = f"{scheme}://{host}"
     return Response({
-        'users': '/api/users/',
-        'teams': '/api/teams/',
-        'workouts': '/api/workouts/',
-        'activities': '/api/activities/',
-        'leaderboard': '/api/leaderboard/',
+        'users': f'{base_url}/api/users/',
+        'teams': f'{base_url}/api/teams/',
+        'workouts': f'{base_url}/api/workouts/',
+        'activities': f'{base_url}/api/activities/',
+        'leaderboard': f'{base_url}/api/leaderboard/',
     })
 
 
